@@ -1,171 +1,379 @@
-import * as THREE from 'three';
+/* eslint-disable */
+import { particles_ws1 } from "./webgl/particles-ws1.js";
+import { particles_ws2 } from "./webgl/particles-ws2.js";
 
-import Particle from './Particle';
-import vertex from './shaders/vertex.glsl';
-import fragment from './shaders/fragment.glsl';
-
-// const OrbitControls = require('three-orbit-controls')(THREE)
+const lessParticles = 0;
+const webglStatus = 1;
 
 
-class Sketch {
-  constructor(container) {
-    this.container = container;
+const particleIndex = [
+  // ["circle", particles_circle],
+  // ["circle2", particles_circle2],
+  // ["circle3", particles_circle3],
+  // ["circle4", particles_circle4],
+  // ["circle5", particles_circle5],
+  // ["circle6", particles_circle6],
+  // ["circle7", particles_circle7],
+  // ["circle8", particles_circle8],
+  // ["circle9", particles_circle9],
+  // ["circle10", particles_circle10],
+  // ["centerline", particles_centerline],
+  // ["disappear", particles_disappear],
+  // ["float", particles_float],
+  // ["float2", particles_float2],
+  // ["frame1", particles_frame1],
+  // ["frame2", particles_frame2],
+  // ["frame3", particles_frame3],
+  // ["frame4", particles_frame4],
+  // ["frame5", particles_frame5],
+  // ["freeze", particles_freeze],
+  // ["grid", particles_grid],
+  // ["grid2", particles_grid2],
+  // ["grid3", particles_grid3],
+  // ["grid4", particles_grid4],
+  // ["top", particles_top],
+  // ["v2", particles_v2],
+  // ["v3", particles_v3],
+  // ["v4", particles_v4],
+  // ["v5", particles_v5],
+  // ["v6", particles_v6],
+  // ["v7", particles_v7],
+  ["ws2", particles_ws2],
+  ["ws1", particles_ws1],
+];
 
+const vars = {
+  vh: window.innerHeight,
+  vw: window.innerWidth,
+  cursor: undefined,
+};
+
+// const devContainer = dev.addContainer();
+// const isMobile = Common.isMobile();
+const body = document.querySelector("body");
+
+let menuglStatus = 0;
+
+const siteRun = 0;
+
+const partcileNumX = lessParticles < 1 ? 100 : 10;
+const partcileNumY = lessParticles < 1 ? 100 : 10;
+
+const particles = [];
+
+// particles class
+let particlePositions = "grid"; // grid, freeze, v2, v3, v4, v5, v6, v7, v8, disappear, top, centerline
+let latestHomeParticlePositions = null;
+export const setParticlePositions = function (i) {
+  // shuffle(particles);
+  particlePositions = i;
+};
+export const getParticlePositions = function (i) {
+  return particlePositions;
+};
+const shuffle = function (array) {
+  array.sort(() => Math.random() - 0.5);
+};
+class Particle {
+  constructor(
+    k,
+    i,
+    j,
+    particlePositions_,
+    particleNum_,
+    particleSpeed_,
+    particleIndex_,
+  ) {
+    this.i = i;
+    this.j = j;
     this.init();
-    this.initMouse();
-    this.initSketch();
-    
-    this.startTicker();
+    this.x = this.x0;
+    this.y = this.y0;
+    this.pos = posArray.subarray(k * 3, k * 3 + 3);
+    this.pointer = pointer;
+    this.runned = 0;
+    this.particlePositions = particlePositions_;
+    this.particleNum = particleNum_;
+    this.speed = particleSpeed_;
+    this.particleIndex = particleIndex_;
   }
 
   init() {
-    this.updateSize();
-
-    this.camera = new THREE.PerspectiveCamera(70, this.width / this.height, 1, 10000);
-    this.camera.position.z = 1;
-    this.scene = new THREE.Scene();
-    this.renderer = new THREE.WebGLRenderer();
-    // this.renderer.setPixelRatio( window.devicePixelRatio );
-    this.renderer.setSize(this.width, this.height);
-    this.container.appendChild( this.renderer.domElement );
-    // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-
-    window.addEventListener('resize', this.onResizeHandler.bind(this));
-    // document.addEventListener('mousemove', this.onMouseMove.bind(this));
+    this.x0 = canvas.width * 0.5 + (this.i * canvas.width) / partcileNumX;
+    this.y0 = canvas.height * 0.5 + (this.j * canvas.height) / partcileNumY;
   }
 
-  fillUp(array, fillUpToSize) {
-    while (array.length < fillUpToSize) {
-      array.push(array[Math.floor(Math.random() * array.length)])
-    }
-    return this;
-  }
-
-  shuffle(array) {
-    array.sort(() => Math.random() - 0.5);
-    return this;
-  };
-  
-
-  getImageInfo() {
-    this.imageInfo = {
-      naturalW: 500,
-      naturalH: 503,
-      count: 0,
-      normalCoords: []
-    }
-
-    const path = document.getElementById('js-path');
-    const length = path.getTotalLength();
-    const numberOfPoints = Math.floor(length / 10);
-    this.imageInfo.count = numberOfPoints;
-    
-    for (let i = 0; i < numberOfPoints; i += 1) {
-      const pointAt = length * i / numberOfPoints;
-      const point = path.getPointAtLength(pointAt);
-      this.imageInfo.normalCoords.push({
-        x: point.x / this.imageInfo.naturalW,
-        y: point.y / this.imageInfo.naturalH
-      })
-    }
-    console.log('Total length:', this.imageInfo.count);
-    this.shuffle(this.imageInfo.normalCoords);
-
-    this.fillUp(this.imageInfo.normalCoords, 10000);
-    this.imageInfo.count = 10000;
-    
-    console.log('Total length:', this.imageInfo.count);
-  }
-
-  initSketch() {
-    this.particles = [];
-
-    this.getImageInfo();
-
-    this.positionArr = new Float32Array(this.imageInfo.count * 3);
-
-    for (let i = 0; i < this.imageInfo.count; i += 1) {
-      this.particles.push(new Particle({
-        normalX : this.imageInfo.normalCoords[i].x,
-        normalY : this.imageInfo.normalCoords[i].y,
-        naturalW : this.imageInfo.naturalW,
-        naturalH : this.imageInfo.naturalH,
-        containerW : this.resolutionWidth,
-        containerH : this.resolutionHeight,
-        positionArr : this.positionArr,
-        index: i,
-        speed: Math.round((Math.random() * 400) / 10) + 1,
-      }));
-    }
-
-    this.positionAttr = new THREE.BufferAttribute(this.positionArr, 3);
-
-    this.geometry = new THREE.BufferGeometry();
-    this.material = new THREE.ShaderMaterial({
-      uniforms: {
-        uResolution: { type: 'v2', value: new THREE.Vector2(this.resolutionWidth, this.resolutionHeight) },
-      },
-      vertexShader: vertex,
-      fragmentShader: fragment,
-      transparent: true,
-      alphaTest: 0.5
-    });
-
-    this.geometry.setAttribute('position', this.positionAttr);
-
-    this.pointCloud = new THREE.Points(this.geometry, this.material);
-    this.pointCloud.frustumCulled = false;
-    this.scene.add(this.pointCloud);
-    console.log(this.geometry);
-  }
-
-  initMouse() {
-    this.mouse = {x: 0, y: 0};
-    ['mousemove', 'touchstart', 'touchmove'].forEach((event, touch) => {
-      document.addEventListener(event, (e) => {
-        if (touch) {
-          e.preventDefault();
-          this.mouse.x = e.targetTouches[0].clientX * window.devicePixelRatio;
-          this.mouse.y = e.targetTouches[0].clientY * window.devicePixelRatio;
-        } else {
-          this.mouse.x = e.clientX * window.devicePixelRatio;
-          this.mouse.y = e.clientY * window.devicePixelRatio;
+  move(particlePositions_) {
+    this.particlePositions = particlePositions_;
+    // const r = Math.floor(Math.random() * 100);
+    // if (r == 1) {
+    //   console.log("element");
+    // }
+    if (this.runned == 0) {
+      this.runned = 1;
+      // this.x = vw / 2; // ortada baslamalari icin
+      // this.y = vh / 2; // ortada baslamalari icin
+      const dx = this.pointer.x;
+      const dy = this.pointer.y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      const s = 1000 / d;
+      this.x = vars.vw - Math.floor(Math.random() * vars.vw); // in 3
+      this.y = vars.vh + Math.floor(Math.random() * vars.vh * 2); // in 3
+    } else {
+      for (let i = 0; i < this.particleIndex.length; i++) {
+        const e = this.particleIndex[i];
+        if (e[0] === this.particlePositions) {
+          e[1](this, vars.vw, vars.vh);
+          break;
         }
-      },false);
+      }
+    }
+  }
+}
+let colorR = 0;
+// webGL canvas
+const canvas = {
+  init(options) {
+    // set webGL context
+    this.elem = document.querySelector("canvas");
+    const gl = (this.gl =
+      this.elem.getContext("webgl", options) ||
+      this.elem.getContext("experimental-webgl", options));
+    if (!gl) return false;
+    // compile shaders
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    // gl_PointSize = max(2.0, min(30.0, aPosition.z));
+    gl.shaderSource(
+      vertexShader,
+      `
+					precision highp float;
+					attribute vec3 aPosition;
+					uniform vec2 uResolution;
+					void main() {
+						gl_PointSize = max(2.0, min(10.0, aPosition.z));
+						gl_Position = vec4(
+							( aPosition.x / uResolution.x * 2.0) - 1.0, 
+							(-aPosition.y / uResolution.y * 2.0) + 1.0, 
+							0.0,
+							1.0
+						);
+					}
+      	`,
+    );
+    gl.compileShader(vertexShader);
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    colorR = 0.6;
+    gl.shaderSource(
+      fragmentShader,
+      `
+					precision highp float;
+					void main() {
+						vec2 pc = 2.0 * gl_PointCoord - 1.0;
+						gl_FragColor = vec4(${ 
+        colorR 
+        }, ${ 
+        colorR 
+        }, ${ 
+        colorR 
+        }, 1.0 - dot(pc, pc));
+					}
+				`,
+    );
+    gl.compileShader(fragmentShader);
+    const program = (this.program = gl.createProgram());
+    gl.attachShader(this.program, vertexShader);
+    gl.attachShader(this.program, fragmentShader);
+    gl.linkProgram(this.program);
+    gl.useProgram(this.program);
+    // resolution
+    this.uResolution = gl.getUniformLocation(this.program, "uResolution");
+    gl.enableVertexAttribArray(this.uResolution);
+    // canvas resize
+    this.resize();
+    window.addEventListener("resize", () => this.resize(), false);
+    return gl;
+  },
+  resize() {
+
+    this.width = this.elem.width = this.elem.offsetWidth;
+    this.height = this.elem.height = this.elem.offsetHeight;
+    for (const p of particles) p.init();
+    this.gl.uniform2f(this.uResolution, this.width, this.height);
+    this.gl.viewport(
+      0,
+      0,
+      this.gl.drawingBufferWidth,
+      this.gl.drawingBufferHeight,
+    );
+  },
+};
+const pointer = {
+  init(canvas) {
+    this.x = 0;
+    this.y = 0;
+    this.s = 0;
+    ["mousemove", "touchstart", "touchmove"].forEach((event, touch) => {
+      document.addEventListener(
+        event,
+        (e) => {
+          if (touch) {
+            e.preventDefault();
+            this.x = e.targetTouches[0].clientX;
+            this.y = e.targetTouches[0].clientY;
+          } else {
+            this.x = e.clientX;
+            this.y = e.clientY;
+          }
+        },
+        false,
+      );
     });
-  }
-
-  startTicker() {
-    this.onTick();
-    requestAnimationFrame(this.startTicker.bind(this));
-  }
-
-  onTick() {
-    this.renderer.render(this.scene, this.camera);
-
-    this.particles.forEach(p => {
-      p.move(this.mouse);
-    })
-
-    // this.positionAttribute = new THREE.BufferAttribute( this.positionArr, 3 );
-    // this.geometry.attributes.position.array = this.positionArr;
-    this.positionAttr = new THREE.BufferAttribute( this.positionArr, 3 );
-    this.geometry.setAttribute('position', this.positionAttr);
-  }
-
-  updateSize() {
-    this.width  = this.container.clientWidth;
-    this.height = this.container.clientHeight;
-    this.resolutionWidth  = this.width  * window.devicePixelRatio;
-    this.resolutionHeight = this.height * window.devicePixelRatio;
-  }
-
-  onResizeHandler() {
-    this.updateSize();
-    this.renderer.setSize(this.width, this.height);
-    this.material.uniforms.uResolution.value.x = this.resolutionWidth;
-    this.material.uniforms.uResolution.value.y = this.resolutionHeight;
+  },
+};
+// init webGL canvas
+const gl = canvas.init({
+  alpha: true,
+  stencil: false,
+  antialias: false,
+  depth: false,
+});
+// additive blending "lighter"
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+gl.enable(gl.BLEND);
+// init pointer
+pointer.init(canvas);
+// init particles
+const nParticles = partcileNumX * partcileNumY;
+const posArray = new Float32Array(nParticles * 3);
+let k = 0;
+let particleNum = 0;
+for (let i = -partcileNumX / 2; i < partcileNumX / 2; i++) {
+  for (let j = -partcileNumY / 2; j < partcileNumY / 2; j++) {
+    const particleSpeed = Math.round((Math.random() * 400) / 10) + 1;
+    particles.push(
+      new Particle(
+        k++,
+        i,
+        j,
+        particlePositions,
+        particleNum,
+        particleSpeed,
+        particleIndex,
+      ),
+    );
+    particleNum++;
   }
 }
 
-const sketch = new Sketch(document.getElementById('root'));
+// create position buffer
+const aPosition = gl.getAttribLocation(canvas.program, "aPosition");
+gl.enableVertexAttribArray(aPosition);
+const positionBuffer = gl.createBuffer();
+// draw all particles
+const draw = () => {
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
+  gl.bufferData(gl.ARRAY_BUFFER, posArray, gl.DYNAMIC_DRAW);
+  gl.drawArrays(gl.GL_POINTS, 0, nParticles);
+};
+// main animation loop
+const run = () => {
+  if (menuglStatus == 1) {
+    requestAnimationFrame(run);
+  }
+  for (const p of particles) p.move(particlePositions);
+  draw();
+
+  // console.log("running");
+};
+
+const startbg = () => {
+  if(webglStatus==1){
+    canvas.resize();
+    menuglStatus = 1;
+    requestAnimationFrame(run);
+  }
+};
+
+const stopbg = () => {
+  menuglStatus = 0;
+};
+
+const pageChangedAction = function () {
+  // menu.buttonize();
+  route.update();
+  // nav.init();
+};
+
+setParticlePositions("ws2");
+
+
+document.querySelector('.js-btn-1').addEventListener('click', () => {
+  setParticlePositions("ws2");
+})
+document.querySelector('.js-btn-2').addEventListener('click', () => {
+  setParticlePositions("ws1");
+})
+
+// if (isMobile) {
+//   body.classList.add("mobile");
+// }
+
+// scrollLock.disablePageScroll();
+
+window.onload = function (e) {
+  window.addEventListener("resize", function () {
+    vars.vw = window.innerWidth;
+    vars.vh = window.innerHeight;
+  });
+  startbg();
+  if (body.classList.contains("home")) {
+    // communiction with ajaxify
+    const pageChanged = document.querySelector("#pageChanged");
+    pageChanged.addEventListener;
+    pageChanged.addEventListener(
+      "mouseup",
+      function (event) {
+        pageChangedAction();
+      },
+      false,
+    );
+    // / communiction with ajaxify
+    siteHeader.init();
+    menu.init(
+      startbg,
+      stopbg,
+      setParticlePositions,
+      getParticlePositions,
+      siteHeader,
+    );
+    setTimeout(() => {
+      menu.showMenuButton();
+    }, 3000);
+  } else {
+  }
+  // nav.init();
+  // const isHome = body.classList.contains("home");
+  // route.init(setParticlePositions, menu, vars, siteHeader, isHome);
+  // route.update();
+  // if (!isMobile) {
+  //   cursor.init();
+  //   cursor.buttonize();
+  // }
+};
+
+export const getVh = function () {
+  return vars.vh;
+};
+
+export const getVw = function () {
+  return vars.vw;
+};
+
+export const getLatestHomeParticlePositions = function () {
+  return latestHomeParticlePositions;
+};
+
+export const setLatestHomeParticlePositions = function (position) {
+  latestHomeParticlePositions = position;
+};

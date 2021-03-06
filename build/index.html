@@ -12,11 +12,38 @@
   <body>
     <!-- BEGIN content -->
     <div class="out">
-      <div id="root"></div>
+      <div class="btns">
+        <button class="js-btn-1 btn">first</button>
+        <button class="js-btn-2 btn">second</button>
+      </div>
+      <div id="root">
+        <canvas></canvas>
+      </div>
       <style>
+        .btns
+        {
+          position: fixed;
+          top: 0;
+          left: 0;
+        }
+
+        .btn
+        {
+          padding: 20px;
+          color: #fff;
+          background-color: tomato;
+        }
+
         #root
         {
           height: 100vh;
+        }
+
+        canvas
+        {
+          width: 100%;
+          height: 100%;
+          background-color: #000;
         }
 
       </style>
