@@ -1,10 +1,13 @@
 /* eslint-disable */
+import scrollLock from 'scroll-lock';
+
+import { Common } from "./vendor/common-functions.js";
 import { particles_ws1 } from "./webgl/particles-ws1.js";
 import { particles_ws2 } from "./webgl/particles-ws2.js";
 
-const lessParticles = 0;
+const lessParticles =0;
 const webglStatus = 1;
-
+scrollLock.disablePageScroll();
 
 const particleIndex = [
   // ["circle", particles_circle],
@@ -49,7 +52,7 @@ const vars = {
 };
 
 // const devContainer = dev.addContainer();
-// const isMobile = Common.isMobile();
+const isMobile = Common.isMobile();
 const body = document.querySelector("body");
 
 let menuglStatus = 0;
@@ -186,8 +189,10 @@ const canvas = {
     gl.linkProgram(this.program);
     gl.useProgram(this.program);
     // resolution
+    console.log(this.uResolution);
     this.uResolution = gl.getUniformLocation(this.program, "uResolution");
     gl.enableVertexAttribArray(this.uResolution);
+    
     // canvas resize
     this.resize();
     window.addEventListener("resize", () => this.resize(), false);
@@ -329,27 +334,27 @@ window.onload = function (e) {
   startbg();
   if (body.classList.contains("home")) {
     // communiction with ajaxify
-    const pageChanged = document.querySelector("#pageChanged");
-    pageChanged.addEventListener;
-    pageChanged.addEventListener(
-      "mouseup",
-      function (event) {
-        pageChangedAction();
-      },
-      false,
-    );
+    // const pageChanged = document.querySelector("#pageChanged");
+    // pageChanged.addEventListener;
+    // pageChanged.addEventListener(
+    //   "mouseup",
+    //   function (event) {
+    //     pageChangedAction();
+    //   },
+    //   false,
+    // );
     // / communiction with ajaxify
-    siteHeader.init();
-    menu.init(
-      startbg,
-      stopbg,
-      setParticlePositions,
-      getParticlePositions,
-      siteHeader,
-    );
-    setTimeout(() => {
-      menu.showMenuButton();
-    }, 3000);
+    // siteHeader.init();
+    // menu.init(
+    //   startbg,
+    //   stopbg,
+    //   setParticlePositions,
+    //   getParticlePositions,
+    //   siteHeader,
+    // );
+    // setTimeout(() => {
+    //   menu.showMenuButton();
+    // }, 3000);
   } else {
   }
   // nav.init();

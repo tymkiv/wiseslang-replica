@@ -74,6 +74,7 @@
   "dependencies": {
     "gsap": "^3.6.0",
     "intrinsic-scale": "^3.0.4",
+    "scroll-lock": "^2.1.5",
     "three": "^0.126.1",
     "three-orbit-controls": "^82.1.0"
   }

@@ -28,8 +28,9 @@ gulp.task('server', done => {
     logFileChanges: true,
     open: Boolean(util.env.open),
     notify: false,
+    online: true,
     ghostMode: false,
-    online: Boolean(util.env.tunnel),
+    // online: Boolean(util.env.tunnel),
     tunnel: util.env.tunnel || null
   });
   done();
