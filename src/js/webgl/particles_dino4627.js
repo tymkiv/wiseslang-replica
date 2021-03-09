@@ -1,6 +1,6 @@
 /* eslint-disable */
 // import { wslogo } from "./vector-ws-logo.js";
-import { wslogo } from "./dino.js";
+import { wslogo } from "./dino4627.js";
 
 
 const wslogolength = wslogo.length;
@@ -11,7 +11,7 @@ const shuffle = function(array) {
 
 shuffle(wslogo);
 
-export const particles_ws1 = function(tt, ww, hh) {
+export const particles_dino4627 = function(tt, ww, hh) {
   let e = 0;
   let currentNum = 0;
   for (let i = 0; i < 100; i++) {

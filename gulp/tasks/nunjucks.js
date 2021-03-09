@@ -15,7 +15,7 @@ const renderHtml = onlyChanged => {
   });
 
   return gulp
-    .src([config.src.templates + '/**/[^_]*.html'])
+    .src([config.src.templates + '/**/*.html'])
     .pipe(plumber({
         errorHandler: config.errorHandler
     }))

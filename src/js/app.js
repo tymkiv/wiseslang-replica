@@ -2,7 +2,8 @@
 import scrollLock from 'scroll-lock';
 
 import { Common } from "./vendor/common-functions.js";
-import { particles_ws1 } from "./webgl/particles-ws1.js";
+import { particles_dino925 } from "./webgl/particles_dino925.js";
+import { particles_dino4627 } from "./webgl/particles_dino4627.js";
 import { particles_ws2 } from "./webgl/particles-ws2.js";
 
 const lessParticles =0;
@@ -10,39 +11,9 @@ const webglStatus = 1;
 scrollLock.disablePageScroll();
 
 const particleIndex = [
-  // ["circle", particles_circle],
-  // ["circle2", particles_circle2],
-  // ["circle3", particles_circle3],
-  // ["circle4", particles_circle4],
-  // ["circle5", particles_circle5],
-  // ["circle6", particles_circle6],
-  // ["circle7", particles_circle7],
-  // ["circle8", particles_circle8],
-  // ["circle9", particles_circle9],
-  // ["circle10", particles_circle10],
-  // ["centerline", particles_centerline],
-  // ["disappear", particles_disappear],
-  // ["float", particles_float],
-  // ["float2", particles_float2],
-  // ["frame1", particles_frame1],
-  // ["frame2", particles_frame2],
-  // ["frame3", particles_frame3],
-  // ["frame4", particles_frame4],
-  // ["frame5", particles_frame5],
-  // ["freeze", particles_freeze],
-  // ["grid", particles_grid],
-  // ["grid2", particles_grid2],
-  // ["grid3", particles_grid3],
-  // ["grid4", particles_grid4],
-  // ["top", particles_top],
-  // ["v2", particles_v2],
-  // ["v3", particles_v3],
-  // ["v4", particles_v4],
-  // ["v5", particles_v5],
-  // ["v6", particles_v6],
-  // ["v7", particles_v7],
   ["ws2", particles_ws2],
-  ["ws1", particles_ws1],
+  ["dino925", particles_dino925],
+  ["dino4627", particles_dino4627],
 ];
 
 const vars = {
@@ -317,7 +288,10 @@ document.querySelector('.js-btn-1').addEventListener('click', () => {
   setParticlePositions("ws2");
 })
 document.querySelector('.js-btn-2').addEventListener('click', () => {
-  setParticlePositions("ws1");
+  setParticlePositions("dino925");
+})
+document.querySelector('.js-btn-3').addEventListener('click', () => {
+  setParticlePositions("dino4627");
 })
 
 // if (isMobile) {
